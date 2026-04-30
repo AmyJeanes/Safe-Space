@@ -218,14 +218,16 @@ function SafeSpace:OpenPresets()
             local line = presetlist:GetLine(selected) --[[@as DListView_Line]]
             if line then
                 local data=line.data
-                for _,cat in ipairs(options) do
-                    local catdata = data[cat.id]
-                    if catdata then
-                        for _,opt in ipairs(cat) do
-                            local o = SafeSpace:GetOption(cat.id,opt.id)
-                            local o2 = catdata[opt.id]
-                            if o and o.convar and o.value and o2 and o.value ~= o2 then
-                                o.convar:SetInt(o2)
+                if data then
+                    for _,cat in ipairs(options) do
+                        local catdata = data[cat.id]
+                        if catdata then
+                            for _,opt in ipairs(cat) do
+                                local o = SafeSpace:GetOption(cat.id,opt.id)
+                                local o2 = catdata[opt.id]
+                                if o and o.convar and o.value and o2 and o.value ~= o2 then
+                                    o.convar:SetInt(o2)
+                                end
                             end
                         end
                     end
