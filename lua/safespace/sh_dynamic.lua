@@ -103,31 +103,22 @@ function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
         _01, _00, _11, _00, _10, _11,
     }
     
+    -- per-face texture-scale dimensions (matches the face order used in `normales`/`uvs`)
+    local face_dims = {
+        {height, length}, -- Left
+        {height, width},  -- Back
+        {length, width},  -- Top
+        {length, width},  -- Bottom
+        {height, width},  -- Front
+        {height, length}, -- Right
+    }
+
     -- scale textures correctly
     for i=1,6*6,6 do
         local n=((i-1)/6)+1
-        local hm,wm
-        if n==1 then -- Left
-            hm=height
-            wm=length
-        elseif n==2 then -- Back
-            hm=height
-            wm=width
-        elseif n==3 then -- Top
-            hm=length
-            wm=width
-        elseif n==4 then -- Bottom
-            hm=length
-            wm=width
-        elseif n==5 then -- Front
-            hm=height
-            wm=width
-        elseif n==6 then -- Right
-            hm=height
-            wm=length
-        end
-        hm=hm*(1/texscale)
-        wm=wm*(1/texscale)
+        local dims = assert(face_dims[n])
+        local hm = dims[1]*(1/texscale)
+        local wm = dims[2]*(1/texscale)
         for j=i,i+5 do
             local o=uvs[j]
             local uv = {0,0}
