@@ -25,7 +25,7 @@ function SafeSpace:CreateToolMenu(panel)
         label:SizeToContents()
         panel:AddItem(label)
         for _,option in ipairs(category) do
-            local slider=vgui.Create("DNumSlider")
+            local slider=vgui.Create("DNumSlider") --[[@as DNumSlider]]
             option.slider=slider
             slider.category = category.id
             slider.option = option.id
@@ -36,67 +36,67 @@ function SafeSpace:CreateToolMenu(panel)
             slider.Label:SetDark(true)
             slider:SetValue(option.value)
             slider:SetConVar(self:GetOptionConVarName(category.id,option.id))
-            slider.OnValueChanged = function(slider,value)
+            slider.OnValueChanged = function()
                 SafeSpace:UpdateGhost()
             end
             panel:AddItem(slider)
         end
     end
-    
+
     local save=vgui.Create("DButton")
     save:SetText("Save")
-    save.DoClick = function(save)
+    save.DoClick = function()
         SafeSpace:SaveOptions()
     end
     panel:AddItem(save)
-    
+
     local revert=vgui.Create("DButton")
     revert:SetText("Revert")
-    revert.DoClick = function(revert)
+    revert.DoClick = function()
         SafeSpace:ResetOptionChanges()
         SafeSpace:UpdateGhost()
     end
     panel:AddItem(revert)
-    
+
     local default=vgui.Create("DButton")
     default:SetText("Default")
-    default.DoClick = function(default)
+    default.DoClick = function()
         SafeSpace:SetDefaultOptions()
         SafeSpace:UpdateGhost()
     end
     panel:AddItem(default)
-    
+
     local preset=vgui.Create("DButton")
     preset:SetText("Presets")
-    preset.DoClick = function(preset)
+    preset.DoClick = function()
         SafeSpace:OpenPresets()
     end
     panel:AddItem(preset)
-    
-    local matselect = panel:MatSelect( "safespace_exterior_material", list.Get( "OverrideMaterials" ), true, 64, 64 )
-    local scroll = vgui.Create("DScrollPanel")
-    matselect:SetParent(scroll)
-    local collapse = vgui.Create("DCollapsibleCategory")
-    collapse:SetLabel("Exterior material")
-    collapse:SetExpanded(0)
-    collapse:SetContents(scroll)
-    panel:AddItem(collapse)
-    collapse.SizeToChildren = function(collapse)
-        collapse:SetTall(200)
+
+    local extMat = panel:MatSelect( "safespace_exterior_material", list.Get( "OverrideMaterials" ), true, 64, 64 )
+    local extScroll = vgui.Create("DScrollPanel")
+    extMat:SetParent(extScroll)
+    local extCollapse = vgui.Create("DCollapsibleCategory")
+    extCollapse:SetLabel("Exterior material")
+    extCollapse:SetExpanded(false)
+    extCollapse:SetContents(extScroll)
+    panel:AddItem(extCollapse)
+    extCollapse.SizeToChildren = function(self)
+        self:SetTall(200)
     end
 
-    local matselect = panel:MatSelect( "safespace_interior_material", list.Get( "OverrideMaterials" ), true, 64, 64 )
-    local scroll = vgui.Create("DScrollPanel")
-    matselect:SetParent(scroll)
-    local collapse = vgui.Create("DCollapsibleCategory")
-    collapse:SetLabel("Interior material")
-    collapse:SetExpanded(0)
-    collapse:SetContents(scroll)
-    panel:AddItem(collapse)
-    collapse.SizeToChildren = function(collapse)
-        collapse:SetTall(200)
+    local intMat = panel:MatSelect( "safespace_interior_material", list.Get( "OverrideMaterials" ), true, 64, 64 )
+    local intScroll = vgui.Create("DScrollPanel")
+    intMat:SetParent(intScroll)
+    local intCollapse = vgui.Create("DCollapsibleCategory")
+    intCollapse:SetLabel("Interior material")
+    intCollapse:SetExpanded(false)
+    intCollapse:SetContents(intScroll)
+    panel:AddItem(intCollapse)
+    intCollapse.SizeToChildren = function(self)
+        self:SetTall(200)
     end
-    
+
     local valid_surfaces = SafeSpace:GetCustomSurfaces()
     local surface_properties = vgui.Create("DTree")
     for k, v in pairs(valid_surfaces) do
@@ -105,10 +105,11 @@ function SafeSpace:CreateToolMenu(panel)
         folder:SetIcon((file.Exists( "materials/icon16/"..foldericon..".png", "GAME" ) and "icon16/"..foldericon..".png") or "icon16/drive.png")
 
         for p, q in pairs(v) do
-            if p == "icon" then continue end
-            local subsurface = folder:AddNode(p)
-            local subicon = q.icon
-            subsurface:SetIcon((file.Exists( "materials/icon16/"..subicon..".png", "GAME" ) and "icon16/"..subicon..".png") or "icon16/page.png")
+            if p ~= "icon" then
+                local subsurface = folder:AddNode(p)
+                local subicon = q.icon
+                subsurface:SetIcon((file.Exists( "materials/icon16/"..subicon..".png", "GAME" ) and "icon16/"..subicon..".png") or "icon16/page.png")
+            end
         end
     end
     surface_properties.OnNodeSelected = function(self)
@@ -121,14 +122,14 @@ function SafeSpace:CreateToolMenu(panel)
             con:SetString(var)
         end
     end
-    
-    local collapse = vgui.Create("DCollapsibleCategory")
-    collapse:SetLabel("Surface properties")
-    collapse:SetExpanded(0)
-    collapse:SetContents(surface_properties)
-    panel:AddItem(collapse)
-    collapse.SizeToChildren = function(collapse)
-        collapse:SetTall(200)
+
+    local surfCollapse = vgui.Create("DCollapsibleCategory")
+    surfCollapse:SetLabel("Surface properties")
+    surfCollapse:SetExpanded(false)
+    surfCollapse:SetContents(surface_properties)
+    panel:AddItem(surfCollapse)
+    surfCollapse.SizeToChildren = function(self)
+        self:SetTall(200)
     end
     
     SafeSpace:ResetOptionChanges()

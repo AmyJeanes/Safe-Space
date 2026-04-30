@@ -1,5 +1,8 @@
 -- Safe Space Interior
 
+---@class gmod_safespace_interior : gmod_door_interior
+---@field BaseClass gmod_door_interior
+
 ENT.Base="gmod_door_interior"
 ENT.Author="Dr. Matt"
 ENT.Exterior="gmod_safespace"
@@ -28,7 +31,7 @@ function ENT:CallHook(name,...)
         return a,b,c,d,e,f
     end
     if not hooks[name] then return end
-    for k,v in pairs(hooks[name]) do
+    for _,v in pairs(hooks[name]) do
         a,b,c,d,e,f = v(self,...)
         if a~=nil then
             return a,b,c,d,e,f

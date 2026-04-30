@@ -130,10 +130,8 @@ function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
         wm=wm*(1/texscale)
         for j=i,i+5 do
             local o=uvs[j]
-            local uv
-            if o==_00 then
-                uv={0,0}
-            elseif o==_10 then
+            local uv = {0,0}
+            if o==_10 then
                 uv={1*wm,0}
             elseif o==_01 then
                 uv={0,1*hm}
@@ -146,7 +144,8 @@ function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
 
     local verts = {}
     for i=1,6*6 do
-        table.insert(verts,{pos = vertices[i], normal = normales[i], u = uvs[i][1], v = uvs[i][2] })
+        local uv = assert(uvs[i])
+        table.insert(verts,{pos = vertices[i], normal = normales[i], u = uv[1], v = uv[2] })
     end
     
     return verts,vertices
@@ -255,8 +254,8 @@ function SafeSpace:Init(ent)
         ent.mesh=Mesh()
         ent.mesh:BuildFromTriangles(vertices)
     end
-    local meshes={} 
-    for k,v in pairs(ent.sections) do
+    local meshes={}
+    for _,v in pairs(ent.sections) do
         table.insert(meshes,v[2])
     end
     ent:PhysicsInitMultiConvex(meshes)

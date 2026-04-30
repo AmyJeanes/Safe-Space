@@ -19,8 +19,8 @@ function SafeSpace:CreateGhost()
     exterior.GetPortalDimensions = function(ent)
         return self:GetExteriorPortalDimensions(ent)
     end
-    exterior.UpdateModel = function(exterior,int)
-        self:MakeDoor(exterior)
+    exterior.UpdateModel = function(ent)
+        self:MakeDoor(ent)
     end
     exterior:UpdateModel()
     
@@ -45,8 +45,8 @@ function SafeSpace:CreateGhost()
     interior.GetLighting = function(ent)
         return self:GetInteriorLighting(ent)
     end
-    interior.UpdateModel = function(exterior,int)
-        self:MakeInterior(interior)
+    interior.UpdateModel = function(ent)
+        self:MakeInterior(ent)
     end
     interior:UpdateModel()
     

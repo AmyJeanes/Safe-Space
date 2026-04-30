@@ -21,7 +21,9 @@ function TOOL:LeftClick( trace )
     if self:GetOwner():KeyDown(IN_WALK) then
         ang=Angle(0, (self:GetOwner():GetPos()-trace.HitPos):Angle().y, 0)
     else
-        ang = trace.HitNormal:Angle()
+        local hitNormal = trace.HitNormal
+        if not hitNormal then return false end
+        ang = hitNormal:Angle()
         ang.pitch = ang.pitch + 90
     end
     local ent = MakeSafeSpace(self:GetOwner(),trace.HitPos,ang)
@@ -55,7 +57,6 @@ if SERVER then
     end
     --duplicator.RegisterEntityClass( "gmod_safespace", MakeSafeSpace, "Model", "Ang", "Pos", "key", "description", "toggle", "Vel", "aVel", "frozen" )
 else
-    local model = "models/props_junk/PopCan01a.mdl"
     function TOOL:MakeGhostEntity()
         self.GhostExterior,self.GhostInterior = SafeSpace:CreateGhost()
     end
@@ -103,7 +104,9 @@ else
         if LocalPlayer():KeyDown(IN_WALK) then
             ang=Angle(0, (self:GetOwner():GetPos()-trace.HitPos):Angle().y, 0)
         else
-            ang = trace.HitNormal:Angle()
+            local hitNormal = trace.HitNormal
+            if not hitNormal then return end
+            ang = hitNormal:Angle()
             ang.pitch = ang.pitch + 90
         end
         ent:SetAngles(ang)

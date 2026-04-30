@@ -68,12 +68,27 @@ function SafeSpace:GetOptions()
     return options
 end
 
+---@class SafeSpaceOption
+---@field id string
+---@field name string
+---@field min integer
+---@field max integer
+---@field default integer
+---@field value integer
+---@field savedvalue integer?
+---@field convar ConVar?
+---@field slider DNumSlider?
+
+---@param category string
+---@param option string
+---@param ply Player?
+---@return SafeSpaceOption
 function SafeSpace:GetOption(category,option,ply)
     for _,cat in ipairs(options) do
         if cat.id==category then
             for _,opt in ipairs(cat) do
                 if opt.id==option then
-                    if SERVER then
+                    if SERVER and ply then
                         opt.value = ply:GetInfoNum(self:GetOptionConVarName(cat.id,opt.id),opt.default)
                     elseif opt.convar then
                         opt.value = opt.convar:GetInt()
@@ -90,14 +105,14 @@ function SafeSpace:GetOption(category,option,ply)
             end
         end
     end
-    return false
+    error(string.format("Unknown SafeSpace option: %s.%s", category, option))
 end
 
 function SafeSpace:SaveOptions()
     for _,cat in ipairs(options) do
         for _,opt in ipairs(cat) do
-            local o = SafeSpace:GetOption(cat.id,opt.id)
-            o.savedvalue = o.value
+            self:GetOption(cat.id,opt.id)
+            opt.savedvalue = opt.value
         end
     end
 end
@@ -105,9 +120,9 @@ end
 function SafeSpace:ResetOptionChanges()
     for _,cat in ipairs(options) do
         for _,opt in ipairs(cat) do
-            local o = SafeSpace:GetOption(cat.id,opt.id)
-            if o.convar then
-                o.convar:SetInt(o.savedvalue)
+            self:GetOption(cat.id,opt.id)
+            if opt.convar and opt.savedvalue then
+                opt.convar:SetInt(opt.savedvalue)
             end
         end
     end
@@ -155,59 +170,63 @@ function SafeSpace:OpenPresets()
     frame:SetDraggable(true)
     frame:Center()
     frame.OldClose = frame.Close
-    
+
     local removed={}
     local changed=false
-    
+
     local panel=vgui.Create("DPanel",frame)
     panel:SetSize(frame:GetWide()-4,frame:GetTall()-27)
     panel:SetPos(2,25)
-    
-    local presetlist = vgui.Create("DListView",panel)
+
+    local presetlist = vgui.Create("DListView",panel) --[[@as DListView]]
     presetlist:SetWide(panel:GetWide())
     presetlist:SetTall(panel:GetTall()-45)
     presetlist:SetMultiSelect(false)
     presetlist:AddColumn( "Preset" )
-    local datastr=file.Read("safespace_presets.txt","DATA")
-    if datastr then
-        local data=Doors.von.deserialize(datastr)
-        for k,v in pairs(data) do
-            presetlist:AddLine(k).data=v
+    local initdata=file.Read("safespace_presets.txt","DATA")
+    if initdata then
+        local data=Doors.von.deserialize(initdata)
+        if data then
+            for k,v in pairs(data) do
+                presetlist:AddLine(k).data=v
+            end
         end
     end
     presetlist:SelectFirstItem()
-    
+
     local save=vgui.Create("DButton",panel)
     save:SetSize(35,20)
     save:SetPos(panel:GetWide()-save:GetWide(),panel:GetTall()-save:GetTall())
     save:SetText("Save")
-    save.DoClick = function(save)
+    save.DoClick = function()
         local data={}
-        for k,v in ipairs(presetlist:GetLines()) do
+        for _,v in ipairs(presetlist:GetLines()) do
             data[v:GetValue(1)] = v.data
         end
-        local datastr=Doors.von.serialize(data)
-        file.Write("safespace_presets.txt",datastr)
+        file.Write("safespace_presets.txt",Doors.von.serialize(data))
         changed = false
     end
-    
+
     local load=vgui.Create("DButton",panel)
-    local x,y = save:GetPos()
+    local sx,sy = save:GetPos()
     load:SetSize(35,20)
-    load:SetPos(x-load:GetWide()-5,y)
+    load:SetPos(sx-load:GetWide()-5,sy)
     load:SetText("Load")
-    load.DoClick = function(load)
+    load.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line = presetlist:GetLine(selected)
+            local line = presetlist:GetLine(selected) --[[@as DListView_Line]]
             if line then
                 local data=line.data
                 for _,cat in ipairs(options) do
-                    for _,opt in ipairs(cat) do
-                        local o = SafeSpace:GetOption(cat.id,opt.id)
-                        local o2 = data[cat.id][opt.id]
-                        if o and o.convar and o.value and o2 and o.value ~= o2 then
-                            o.convar:SetInt(o2)
+                    local catdata = data[cat.id]
+                    if catdata then
+                        for _,opt in ipairs(cat) do
+                            local o = SafeSpace:GetOption(cat.id,opt.id)
+                            local o2 = catdata[opt.id]
+                            if o and o.convar and o.value and o2 and o.value ~= o2 then
+                                o.convar:SetInt(o2)
+                            end
                         end
                     end
                 end
@@ -216,13 +235,13 @@ function SafeSpace:OpenPresets()
             end
         end
     end
-    
+
     local new=vgui.Create("DButton",panel)
-    local x,y = load:GetPos()
+    local lx,ly = load:GetPos()
     new:SetSize(35,20)
-    new:SetPos(x-new:GetWide()-5,y)
+    new:SetPos(lx-new:GetWide()-5,ly)
     new:SetText("New")
-    new.DoClick = function(new)
+    new.DoClick = function()
         Derma_StringRequest("New preset", "Please enter a name for your preset", "", function(name)
             local data={}
             for _,cat in ipairs(options) do
@@ -241,15 +260,15 @@ function SafeSpace:OpenPresets()
             changed = true
         end)
     end
-    
+
     local remove=vgui.Create("DButton",panel)
     remove:SetSize(50,20)
     remove:SetPos(panel:GetWide()-remove:GetWide(),panel:GetTall()-remove:GetTall()-new:GetTall()-2)
     remove:SetText("Remove")
-    remove.DoClick = function(remove)
+    remove.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line=presetlist:GetLine(selected)
+            local line=presetlist:GetLine(selected) --[[@as DListView_Line]]
             if line then
                 removed[line:GetValue(1)] = true
                 presetlist:RemoveLine(selected)
@@ -258,16 +277,16 @@ function SafeSpace:OpenPresets()
         end
         presetlist:SelectFirstItem()
     end
-    
+
     local rename=vgui.Create("DButton",panel)
-    local x,y = remove:GetPos()
+    local rx,ry = remove:GetPos()
     rename:SetSize(50,20)
-    rename:SetPos(x-rename:GetWide()-5,y)
+    rename:SetPos(rx-rename:GetWide()-5,ry)
     rename:SetText("Rename")
-    rename.DoClick = function(rename)
+    rename.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line = presetlist:GetLine(selected)
+            local line = presetlist:GetLine(selected) --[[@as DListView_Line]]
             if line then
                 local old=line:GetValue(1)
                 Derma_StringRequest("Rename preset", "Please enter a new name for your preset", old, function(name)
@@ -280,22 +299,22 @@ function SafeSpace:OpenPresets()
             end
         end
     end
-    
-    frame.Close = function(frame)
+
+    frame.Close = function(self)
         if changed then
             Derma_Query(
                 "You have unsaved changes, do you want to save?",
                 "Unsaved changes",
                 "Yes",
-                function() save:DoClick() frame:OldClose() end,
+                function() save:DoClick() self:OldClose() end,
                 "No",
-                function() frame:OldClose() end,
+                function() self:OldClose() end,
                 "Cancel"
             )
         else
-            frame:OldClose()
+            self:OldClose()
         end
     end
-    
+
     frame:MakePopup()
 end

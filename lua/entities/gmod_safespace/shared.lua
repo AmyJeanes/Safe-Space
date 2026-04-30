@@ -1,5 +1,8 @@
 -- Safe Space
 
+---@class gmod_safespace : gmod_door_exterior
+---@field BaseClass gmod_door_exterior
+
 ENT.Category = "Dr. Matt"
 ENT.Base="gmod_door_exterior"
 ENT.Spawnable=true
@@ -34,7 +37,7 @@ function ENT:CallHook(name,...)
         return a,b,c,d,e,f
     end
     if not hooks[name] then return end
-    for k,v in pairs(hooks[name]) do
+    for _,v in pairs(hooks[name]) do
         a,b,c,d,e,f = v(self,...)
         if a~=nil then
             return a,b,c,d,e,f
