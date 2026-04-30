@@ -78,6 +78,7 @@ Reserved for *real* gaps in the glua-api-snippets stubs. Things specific to Safe
 
 - `Entity:EnableCustomCollisions(useCollisions)` — wiki documents a boolean parameter; the stub declares 0 args. Field-style override on `Entity` widens the signature.
 - `DNumSlider.Label` — internal `DLabel` panel exposed by the runtime for callers that want to style the label directly. Not declared in the stub.
+- `table.insert(tbl, value)` — glua_check 1.0.15 can resolve two-argument inserts to the positional overload and report the value as an invalid numeric position.
 
 `DListView:GetLine` / `AddLine` / `GetSelectedLine` are typed `@return Panel` in the stub instead of `@return DListView_Line`. That makes `line:GetValue(1)` resolve to `Panel:GetValue()` (0-arg) and produce a spurious `redundant-parameter` warning. Neither field-style nor function-redeclaration overrides take precedence over the stub at the analyzer's lookup level, so the workaround is `--[[@as DListView_Line]]` casts at the two call sites in `sh_settings.lua` (the `OpenPresets` remove/rename buttons).
 
@@ -95,7 +96,19 @@ If you (Claude) are operating in a fresh clone, **check both of these and instal
    ```bash
    glua_ls --version
    ```
-   If missing → `cargo install glua_ls` (binary lands at `~/.cargo/bin/glua_ls`).
+   If missing or outdated, install it from the latest
+   [`Pollux12/gmod-glua-ls`](https://github.com/Pollux12/gmod-glua-ls) GitHub release,
+   not Cargo. The crates.io packages can lag the release binaries used by CI.
+
+   Windows PowerShell example:
+   ```powershell
+   New-Item -ItemType Directory -Force .tools/glua-ls
+   $url = gh api repos/Pollux12/gmod-glua-ls/releases/latest `
+       --jq '.assets[] | select(.name == "glua_ls-win32-x64.zip") | .browser_download_url'
+   Invoke-WebRequest -Uri $url -OutFile .tools/glua_ls.zip
+   Expand-Archive -Path .tools/glua_ls.zip -DestinationPath .tools/glua-ls -Force
+   ```
+   Add `.tools/glua-ls` to the PATH used by Claude Code, or place `glua_ls.exe` in another PATH directory, then re-run `glua_ls --version`.
 
 2. **GLua API stubs at `.tools/glua-api/`** — referenced by `.luarc.json` under `workspace.library`. Without them every GMod global (`IsValid`, `hook`, `ents`, `Color`, `LocalPlayer`, …) shows as `undefined-global`. `.tools/` is gitignored.
    ```bash
@@ -116,10 +129,18 @@ The `glua-lsp:install-glua-ls` skill (auto-loaded with the plugin) covers the sa
 
 #### Workspace-wide scans with `glua_check`
 
-`glua_ls` only analyzes files as they are opened/edited. To audit the whole repo at once:
+`glua_ls` only analyzes files as they are opened/edited. To audit the whole repo at once, use the CLI sibling `glua_check` from the latest `Pollux12/gmod-glua-ls` GitHub release:
+
+```powershell
+New-Item -ItemType Directory -Force .tools/glua-check
+$url = gh api repos/Pollux12/gmod-glua-ls/releases/latest `
+    --jq '.assets[] | select(.name == "glua_check-win32-x64.zip") | .browser_download_url'
+Invoke-WebRequest -Uri $url -OutFile .tools/glua_check.zip
+Expand-Archive -Path .tools/glua_check.zip -DestinationPath .tools/glua-check -Force
+```
 
 ```bash
-glua_check .
+.tools/glua-check/glua_check.exe .
 ```
 
 Run from the project root. The `.` is required (no-arg fails on Windows), and the working directory must be the Safe-Space root so `.luarc.json`'s relative paths resolve.

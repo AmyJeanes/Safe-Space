@@ -61,4 +61,4 @@ jobs:
 
       - name: Run glua_check
         working-directory: Safe-Space
-        run: glua_check .
+        run: glua_check --warnings-as-errors .
