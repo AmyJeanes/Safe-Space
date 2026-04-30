@@ -78,7 +78,6 @@ Reserved for *real* gaps in the glua-api-snippets stubs. Things specific to Safe
 
 - `Entity:EnableCustomCollisions(useCollisions)` — wiki documents a boolean parameter; the stub declares 0 args. Field-style override on `Entity` widens the signature.
 - `DNumSlider.Label` — internal `DLabel` panel exposed by the runtime for callers that want to style the label directly. Not declared in the stub.
-- `table.insert(tbl, value)` — glua_check 1.0.15 can resolve two-argument inserts to the positional overload and report the value as an invalid numeric position.
 
 `DListView:GetLine` / `AddLine` / `GetSelectedLine` are typed `@return Panel` in the stub instead of `@return DListView_Line`. That makes `line:GetValue(1)` resolve to `Panel:GetValue()` (0-arg) and produce a spurious `redundant-parameter` warning. Neither field-style nor function-redeclaration overrides take precedence over the stub at the analyzer's lookup level, so the workaround is `--[[@as DListView_Line]]` casts at the two call sites in `sh_settings.lua` (the `OpenPresets` remove/rename buttons).
 
