@@ -6,6 +6,8 @@
 	[
 		"*.md",
 		"*.txt",
-		"*.git*"
+		"*.git*",
+		".tools/*",
+		"scripts/*"
 	]
 }
