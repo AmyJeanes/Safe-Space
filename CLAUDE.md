@@ -61,7 +61,7 @@ For static analysis, `.luarc.json` references the *real* sibling addons rather t
 
 Workspace.library entries are *analysis sources*, not *diagnostic targets* — Doors's own warnings don't bleed into Safe-Space's output. If a contributor clones Safe-Space without those siblings present, glua_ls warns about missing library paths and base-class lookups go back to `undefined-field`, but the rest of the analysis is unaffected.
 
-There is intentionally **no `diagnostics.disable` block in `.luarc.json`** — every rule earns its keep. Prefer code-level fixes or targeted annotations over global suppression.
+The `.luarc.json` carries a **small, temporary `diagnostics.disable` block** (`undefined-field`) — glua_ls 1.0.20+ floods false `undefined-field` on the variant-shape table `ENT:GetDimensions()` returns (interior dims carry `length`, exterior dims don't; zero real bugs). Every other rule earns its keep — prefer code-level fixes or targeted annotations — and re-enable once `Pollux12/gmod-glua-ls` improves.
 
 ### Type annotations
 
