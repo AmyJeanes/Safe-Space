@@ -61,7 +61,7 @@ For static analysis, `.luarc.json` references the *real* sibling addons rather t
 
 Workspace.library entries are *analysis sources*, not *diagnostic targets* — Doors's own warnings don't bleed into Safe-Space's output. If a contributor clones Safe-Space without those siblings present, glua_ls warns about missing library paths and base-class lookups go back to `undefined-field`, but the rest of the analysis is unaffected.
 
-The `.luarc.json` carries a **small, temporary `diagnostics.disable` block** (`undefined-field`) — glua_ls 1.0.20+ floods false `undefined-field` on the variant-shape table `ENT:GetDimensions()` returns (interior dims carry `length`, exterior dims don't; zero real bugs). Every other rule earns its keep — prefer code-level fixes or targeted annotations — and re-enable once `Pollux12/gmod-glua-ls` improves.
+The `.luarc.json` carries **no `diagnostics.disable` block** — every rule earns its keep. When a rule looks like it's misfiring, prefer a code-level fix or a targeted annotation over disabling. The one historical exception (`undefined-field` flooding on the variant-shape table `ENT:GetDimensions()` returns) is now solved with named dimension classes and a cast — see the Type annotations section.
 
 ### Type annotations
 
@@ -69,6 +69,7 @@ Patterns that matter for this codebase:
 
 - **`---@class SafeSpaceOption`** in `sh_settings.lua` — keys callers care about (`id`, `name`, `min`, `max`, `default`, `value`) are required; `savedvalue`, `convar`, `slider` are optional because they are populated lazily (CLIENT-only `convar` setup, `value` mutates via `GetOption`, `slider` set when the tool panel is built). `GetOption` is annotated `@return SafeSpaceOption` (non-nullable) — see the convention note above.
 - **Entity inheritance** — `---@class gmod_safespace : gmod_door_exterior` with an explicit `---@field BaseClass gmod_door_exterior` is needed because GMod sets `self.BaseClass` at runtime when `ENT.Base` is set, but the analyzer doesn't know that. The same pattern applies to `gmod_safespace_interior`.
+- **Dimension shapes** — `ENT:GetDimensions()` returns one of two variant shapes: exterior dims (`SafeSpaceExteriorDimensions`: `width`/`height`/`size`/`texscale`) or interior dims (`SafeSpaceInteriorDimensions`: `width`/`height`/`size`/`length`), both extending `SafeSpaceDimensions`. The classes and the `GetExteriorDimensions`/`GetInteriorDimensions` producers are annotated in `sh_dynamic.lua`; each entity's `GetDimensions` carries the matching `@return`. The shared `sh_dynamic.lua` functions take an untyped `ent` (they touch many runtime-only fields like `.exterior`/`.sections`/`.phys` that aren't on the classes — typing `ent` would cascade `undefined-field`), so `MakeInterior` casts its local with `--[[@as SafeSpaceInteriorDimensions]]` to access `dim.length`.
 - **`--[[@as DListView_Line]]` casts** on `presetlist:GetLine(...)` results — see the next section.
 - **`trace.HitNormal` is nullable.** The glua-api types `TraceResult.HitNormal` as `Vector?` — at miss/world edge cases it can be nil. Extract to a local and guard rather than asserting with `--[[@as Vector]]`; see the two trace handlers in `lua/weapons/gmod_tool/stools/safespace.lua`.
 

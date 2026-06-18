@@ -10,6 +10,7 @@ ENT:AddHook("Initialize","safespace",function(self)
     SafeSpace:MakeDoor(self)
 end)
 
+---@return SafeSpaceExteriorDimensions
 function ENT:GetDimensions()
     return self.dimensions
 end

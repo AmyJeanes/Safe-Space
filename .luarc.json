@@ -2,11 +2,6 @@
     "runtime": {
         "version": "LuaJIT"
     },
-    "diagnostics": {
-        "disable": [
-            "undefined-field"
-        ]
-    },
     "workspace": {
         "library": [
             "./.tools/glua-api",

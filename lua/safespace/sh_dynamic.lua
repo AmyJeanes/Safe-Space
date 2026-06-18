@@ -142,6 +142,18 @@ function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
     return verts,vertices
 end
 
+---@class SafeSpaceDimensions
+---@field width number
+---@field height number
+---@field size number
+
+---@class SafeSpaceExteriorDimensions : SafeSpaceDimensions
+---@field texscale number
+
+---@class SafeSpaceInteriorDimensions : SafeSpaceDimensions
+---@field length number
+
+---@return SafeSpaceExteriorDimensions
 function SafeSpace:GetExteriorDimensions(ply)
     return {
         width = SafeSpace:GetOption("exterior","width",ply).value,
@@ -161,6 +173,7 @@ function SafeSpace:GetExteriorPortalDimensions(ent)
     }
 end
 
+---@return SafeSpaceInteriorDimensions
 function SafeSpace:GetInteriorDimensions(ply)
     return {
         width = SafeSpace:GetOption("interior","width",ply).value,
@@ -346,10 +359,11 @@ function SafeSpace:MakeDoor(ent)
     self:Init(ent)
 end
 
+---@param ent gmod_safespace_interior
 function SafeSpace:MakeInterior(ent)
     ent:SetRenderMode(RENDERMODE_TRANSALPHA)
     ent:SetColor(Color(255,255,255,255))
-    
+
     local edim=ent.exterior:GetDimensions()
     local dim=ent:GetDimensions()
     local offset=Vector(dim.width/2,dim.length/2,(dim.height-dim.size)/2)
