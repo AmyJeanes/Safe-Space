@@ -142,18 +142,18 @@ function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
     return verts,vertices
 end
 
----@class SafeSpaceDimensions
+---@class safespace_dimensions
 ---@field width number
 ---@field height number
 ---@field size number
 
----@class SafeSpaceExteriorDimensions : SafeSpaceDimensions
+---@class safespace_exterior_dimensions : safespace_dimensions
 ---@field texscale number
 
----@class SafeSpaceInteriorDimensions : SafeSpaceDimensions
+---@class safespace_interior_dimensions : safespace_dimensions
 ---@field length number
 
----@return SafeSpaceExteriorDimensions
+---@return safespace_exterior_dimensions
 function SafeSpace:GetExteriorDimensions(ply)
     return {
         width = SafeSpace:GetOption("exterior","width",ply).value,
@@ -173,7 +173,7 @@ function SafeSpace:GetExteriorPortalDimensions(ent)
     }
 end
 
----@return SafeSpaceInteriorDimensions
+---@return safespace_interior_dimensions
 function SafeSpace:GetInteriorDimensions(ply)
     return {
         width = SafeSpace:GetOption("interior","width",ply).value,

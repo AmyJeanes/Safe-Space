@@ -68,7 +68,7 @@ function SafeSpace:GetOptions()
     return options
 end
 
----@class SafeSpaceOption
+---@class safespace_option
 ---@field id string
 ---@field name string
 ---@field min integer
@@ -82,7 +82,7 @@ end
 ---@param category string
 ---@param option string
 ---@param ply Player?
----@return SafeSpaceOption
+---@return safespace_option
 function SafeSpace:GetOption(category,option,ply)
     for _,cat in ipairs(options) do
         if cat.id==category then

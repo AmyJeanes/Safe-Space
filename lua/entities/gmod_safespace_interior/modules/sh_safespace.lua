@@ -4,7 +4,7 @@ ENT:AddHook(SERVER and "PreInitialize" or "Initialize","safespace",function(self
     SafeSpace:MakeInterior(self)
 end)
 
----@return SafeSpaceInteriorDimensions
+---@return safespace_interior_dimensions
 function ENT:GetDimensions()
     return self.dimensions
 end
