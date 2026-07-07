@@ -1,6 +1,9 @@
 -- Safe Space
 
 SafeSpace=SafeSpace or {}
+---@param folder string?
+---@param addonly boolean?
+---@param noprefix boolean?
 function SafeSpace:LoadFolder(folder,addonly,noprefix)
     if folder then
         folder="safespace/"..folder.."/"

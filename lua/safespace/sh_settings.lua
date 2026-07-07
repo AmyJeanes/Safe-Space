@@ -139,6 +139,8 @@ function SafeSpace:SetDefaultOptions()
     end
 end
 
+---@param category string
+---@param option string
 function SafeSpace:GetOptionConVarName(category,option)
     return "safespace_".. category .. "_" .. option
 end

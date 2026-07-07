@@ -2,6 +2,11 @@
 
 local custom_surfacetypes = {}
 local valid_surfacetypes = {} --a confirmation global list to make sure the client doesn't load in surface types not on the list
+---@param displayname string
+---@param surfaceid string
+---@param category string?
+---@param icon string?
+---@param categoryicon string?
 function SafeSpace:AddCustomSurface(displayname, surfaceid, category, icon, categoryicon)
     if not surfaceid or not displayname then return end
 
@@ -68,6 +73,7 @@ SafeSpace:AddCustomSurface("Plastic","plastic","Misc")
 SafeSpace:AddCustomSurface("Cardboard","cardboard","Misc")
 SafeSpace:AddCustomSurface("Glass","glass","Misc")
 
+---@param ply Player
 function SafeSpace:GetSurfaceProperty(ply)
     local surfacetype = ply:GetInfo("safespace_global_surface")
     if table.HasValue(valid_surfacetypes,surfacetype) and util.GetSurfaceIndex(surfacetype) ~= -1 then

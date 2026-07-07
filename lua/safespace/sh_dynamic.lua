@@ -1,5 +1,11 @@
 -- Dynamic
 
+---@param pos Vector?
+---@param ang Angle
+---@param length number?
+---@param width number?
+---@param height number?
+---@param texscale number
 function SafeSpace:MakeCube(pos,ang,length,width,height,texscale)
     pos=pos or Vector()
     length=length or 1
@@ -153,6 +159,7 @@ end
 ---@class safespace_interior_dimensions : safespace_dimensions
 ---@field length number
 
+---@param ply Player
 ---@return safespace_exterior_dimensions
 function SafeSpace:GetExteriorDimensions(ply)
     return {
@@ -163,6 +170,7 @@ function SafeSpace:GetExteriorDimensions(ply)
     }
 end
 
+---@param ent gmod_safespace
 function SafeSpace:GetExteriorPortalDimensions(ent)
     local dim=ent:GetDimensions()
     return {
@@ -173,6 +181,7 @@ function SafeSpace:GetExteriorPortalDimensions(ent)
     }
 end
 
+---@param ply Player
 ---@return safespace_interior_dimensions
 function SafeSpace:GetInteriorDimensions(ply)
     return {
@@ -183,6 +192,7 @@ function SafeSpace:GetInteriorDimensions(ply)
     }
 end
 
+---@param ent gmod_safespace_interior
 function SafeSpace:GetInteriorPortalDimensions(ent)
     local dim=ent:GetDimensions()
     local edim=ent.exterior:GetDimensions()
@@ -194,9 +204,10 @@ function SafeSpace:GetInteriorPortalDimensions(ent)
     }
 end
 
+---@param ent gmod_safespace
 function SafeSpace:GetExteriorLighting(ent)
     local dim=ent:GetDimensions()
-    ---@cast ent.interior gmod_door_interior
+    ---@cast ent.interior gmod_safespace_interior
     local idim=ent.interior:GetDimensions()
     local portal=ent:GetPortalDimensions()
     return {
@@ -211,6 +222,7 @@ function SafeSpace:GetExteriorLighting(ent)
     }
 end
 
+---@param ent gmod_safespace_interior
 function SafeSpace:GetInteriorLighting(ent)
     local dim=ent:GetDimensions()
     local edim=ent.exterior:GetDimensions()
@@ -227,6 +239,7 @@ function SafeSpace:GetInteriorLighting(ent)
     }
 end
 
+---@param ply Player
 function SafeSpace:GetTextureExterior(ply)
     local mat = ply:GetInfo("safespace_exterior_material")
     if list.Contains("OverrideMaterials",mat) then
@@ -236,6 +249,7 @@ function SafeSpace:GetTextureExterior(ply)
     end
 end
 
+---@param ply Player
 function SafeSpace:GetTextureInterior(ply)
     local mat = ply:GetInfo("safespace_interior_material")
     if list.Contains("OverrideMaterials",mat) then
@@ -248,6 +262,8 @@ end
 local wireframe=Material("models/wireframe")
 local scale=Vector(1,1,1)
 
+-- ent is any: runs on both the exterior and interior SENT, which share these runtime fields but declare no common class.
+---@param ent any
 function SafeSpace:Init(ent)
     if CLIENT then
         local vertices={}
@@ -288,6 +304,7 @@ function SafeSpace:Init(ent)
             end)
         end
         
+        ---@param ghost boolean?
         ent.CustomDrawModel = function(self,ghost)
             if self.mesh then
                 local mat = Matrix()
@@ -341,6 +358,7 @@ function SafeSpace:Init(ent)
     end
 end
 
+---@param ent gmod_safespace
 function SafeSpace:MakeDoor(ent)
     ent:SetRenderMode(RENDERMODE_TRANSALPHA)
     ent:SetColor(Color(255,255,255,255))

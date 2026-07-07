@@ -14,6 +14,7 @@ if CLIENT then
     language.Add("SBoxLimit_safespaces", "You've hit Safe Spaces limit!")
 end
 
+---@param trace TraceResult
 function TOOL:LeftClick( trace )
     if IsValid(trace.Entity) and trace.Entity:IsPlayer() then return false end
     if CLIENT then return true end
@@ -33,6 +34,9 @@ end
 
 if SERVER then
     CreateConVar("sbox_maxsafespaces",5)
+    ---@param ply Player
+    ---@param pos Vector
+    ---@param ang Angle
     function MakeSafeSpace(ply,pos,ang)
         if IsValid(ply) and (not ply:CheckLimit("safespaces")) then return false end
     
@@ -86,6 +90,8 @@ else
         end
     end)
     
+    ---@param ent Entity
+    ---@param ply Player
     function TOOL:UpdateGhost( ent, ply )
         if not IsValid(ent) then return end
 
@@ -134,6 +140,7 @@ else
         end
     end
 
+    ---@param panel Panel
     function TOOL.BuildCPanel(panel)
         SafeSpace:CreateToolMenu(panel)
     end

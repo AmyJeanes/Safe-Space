@@ -1,5 +1,6 @@
 -- Tool menu
 
+---@param panel Panel
 function SafeSpace:CreateToolMenu(panel)
     panel:AddControl( "Header", { Description = "#tool.safespace.desc" } )
     
