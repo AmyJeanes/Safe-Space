@@ -12,7 +12,7 @@ Without these the addon will not function correctly and you may experience error
 Installation
 =
 ### Steam Workshop
-- [Safe Space](https://steamcommunity.com/sharedfiles/filedetails/?id=210294043) (release branch, stable)
+- [Safe Space](https://steamcommunity.com/sharedfiles/filedetails/?id=210294043) (latest release, stable)
 
 ### Manual installation
 Remove any previous versions then put this folder into Steam/Steamapps/common/garrysmod/garrysmod/addons/
