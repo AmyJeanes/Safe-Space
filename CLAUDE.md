@@ -98,7 +98,7 @@ _Shared conventions for my GMod addons - generated from [`gmod-addon-tools/docs/
 
 ## Code style
 
-- **Pure Lua syntax only - no GMod-Lua extensions.** No `//` comments, no `continue`, no `!=`, no `&&`/`||`. Use `--`, `goto continue`, `~=`, `and`/`or`.
+- **Pure Lua syntax only - no GMod-Lua extensions.** No `//` comments, no `continue`, no `!=`, no `&&`/`||`. Use `--`, `goto skip` (`continue` is a reserved word even as a `goto` label, so `goto continue` fails at load), `~=`, `and`/`or`.
 - **Comments: concise, the _why_ not the _what_.** A couple of lines at most; reserve length for genuinely non-obvious rationale and bias toward cutting - match the surrounding density, don't pad to essay length. Don't restate the code, don't explain it by what it replaced, and keep the _why_ self-contained (no pointers to external docs or fragile cross-file references). Keep comments ASCII: `->` not an arrow, a single spaced hyphen for a dash (never a double `--`, which reads as a second comment marker, nor an em-dash).
 - **Drop the loop variable you don't use** rather than naming it: `for _, v in pairs(t)`, `for k in pairs(t)`, `for _ = 1, n do`. The `unused` lint is on - keep the noise floor at zero.
 - **Every `---@diagnostic disable` needs a paired reason** on the same or preceding line naming _why_ the rule is suppressed. The default is to fix the issue, not suppress it.
@@ -121,6 +121,8 @@ Diagnostics, hover, and jump-to-definition come from the [`glua-lsp` plugin](htt
 ## Whole-repo scans (`scripts/glua-check.ps1`)
 
 `glua_ls` only analyzes files as they are opened or edited. To audit the whole repo at once, run `pwsh -File scripts/glua-check.ps1` - it provisions tooling on demand (no-op when present) and runs `glua_check --warnings-as-errors` against the workspace root. It takes no path filter, so it always scans everything; CI runs the same script. Useful after a fix ripples across the tree, or when picking the project up to surface latent issues the LSP hasn't opened yet.
+
+**Local (Windows) vs CI (Linux) can diverge - CI is authoritative.** The same tooling and files can flag differently on Linux and no `.luarc.json` change closes that platform gap, so a green local `glua-check` isn't conclusive - watch CI's Linux `GLua Check` job after pushing typing changes. Most often the culprit is a strict `---@class`/`---@type` on a *partial or reused literal* (passes Windows, fails Linux); use `table`/`table[]?` or a `--[[@as Class]]` cast instead of annotating the literal.
 
 ## Typing enforcement (`scripts/typing-check.ps1`)
 
