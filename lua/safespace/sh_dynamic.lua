@@ -262,6 +262,40 @@ end
 local wireframe=Material("models/wireframe")
 local scale=Vector(1,1,1)
 
+-- Render with a private clone of the chosen material, not the shared Material()
+-- instance: a global $color mutation on a stock material (e.g. hunter/myplastic)
+-- would otherwise tint every Safe Space. $color is dropped (-> white) so even an
+-- already-polluted source can't leak in.
+local isolated_materials = {}
+---@param name string
+---@return IMaterial
+function SafeSpace:GetIsolatedMaterial(name)
+    local cached = isolated_materials[name]
+    if cached then return cached end
+
+    local src = Material(name)
+    local data, textures = {}, {}
+    for k, v in pairs(src:GetKeyValues()) do
+        if k ~= "$color" and k ~= "$color2" then
+            local t = TypeID(v)
+            if t == TYPE_TEXTURE then
+                textures[k] = v -- bound after creation; name-strings render as missing texture
+            elseif t == TYPE_VECTOR then
+                data[k] = string.format("[%f %f %f]", v.x, v.y, v.z)
+            elseif t == TYPE_NUMBER or t == TYPE_STRING then
+                data[k] = tostring(v)
+            end
+        end
+    end
+    local safename = string.gsub(name, "[^%w]", "_")
+    local iso = CreateMaterial("safespace_iso_"..safename, src:GetShader() or "VertexLitGeneric", data)
+    for k, tex in pairs(textures) do
+        iso:SetTexture(k, tex)
+    end
+    isolated_materials[name] = iso
+    return iso
+end
+
 -- ent is any: runs on both the exterior and interior SENT, which share these runtime fields but declare no common class.
 ---@param ent any
 function SafeSpace:Init(ent)
@@ -327,7 +361,7 @@ function SafeSpace:Init(ent)
                 if ghost then
                     render.SetMaterial(wireframe)
                 else
-                    render.SetMaterial(Material(self.material))
+                    render.SetMaterial(SafeSpace:GetIsolatedMaterial(self.material))
                 end
 
                 cam.PushModelMatrix(mat)
