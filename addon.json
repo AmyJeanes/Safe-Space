@@ -7,7 +7,12 @@
 		"*.md",
 		"*.txt",
 		"*.git*",
+		"LICENSE",
 		".claude/*",
+		".github/*",
+		".vscode/*",
+		".luatypes/*",
+		".luarc.json",
 		".tools/*",
 		"scripts/*"
 	]
