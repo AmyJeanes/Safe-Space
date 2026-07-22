@@ -64,3 +64,46 @@ jobs:
           sarif_file: Safe-Space/results.sarif
           checkout_path: ${{ github.workspace }}/Safe-Space
           category: glua_check
+
+  typing-check:
+    name: Typing Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: Safe-Space
+
+      - name: Checkout Doors
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: AmyJeanes/Doors
+          ref: main
+          path: Doors
+
+      - name: Checkout world-portals
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: AmyJeanes/world-portals
+          ref: main
+          path: world-portals
+
+      - name: Checkout wire
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: wiremod/wire
+          ref: master
+          path: wire
+
+      - name: Checkout gmod-addon-tools
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: AmyJeanes/gmod-addon-tools
+          # renovate: datasource=github-tags depName=AmyJeanes/gmod-addon-tools
+          ref: v0.28.1
+          path: gmod-addon-tools
+
+      - name: Run typing check
+        working-directory: Safe-Space
+        shell: pwsh
+        run: ./scripts/typing-check.ps1
