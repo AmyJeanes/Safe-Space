@@ -1,5 +1,10 @@
 -- Surface
 
+---@class safespace_surface_category
+---@field icon string?
+---@field [string] {icon: string, real: string}
+
+---@type table<string, safespace_surface_category>
 local custom_surfacetypes = {}
 local valid_surfacetypes = {} --a confirmation global list to make sure the client doesn't load in surface types not on the list
 ---@param displayname string
@@ -22,12 +27,16 @@ function SafeSpace:AddCustomSurface(displayname, surfaceid, category, icon, cate
     if not custom_surfacetypes[category] then
         custom_surfacetypes[category] = {}
     end
+    local cat = custom_surfacetypes[category]
 
-    custom_surfacetypes[category].icon = categoryicon or custom_surfacetypes[category].icon or ""
+    -- The analyzer mixes the entry-table type into this read; icon only ever holds a string.
+    ---@diagnostic disable-next-line: assign-type-mismatch
+    cat.icon = categoryicon or cat.icon or ""
 
-    custom_surfacetypes[category][displayname] = {}
-    custom_surfacetypes[category][displayname].icon = icon or custom_surfacetypes[category].icon or "" --Set it to the parent icon if not specified
-    custom_surfacetypes[category][displayname].real = surfaceid
+    cat[displayname] = {
+        icon = icon or cat.icon or "", --Set it to the parent icon if not specified
+        real = surfaceid,
+    }
     table.insert(valid_surfacetypes,surfaceid)
 end
 
