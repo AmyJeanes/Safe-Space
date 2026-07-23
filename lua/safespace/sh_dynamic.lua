@@ -261,6 +261,7 @@ end
 
 local wireframe=Material("models/wireframe")
 local scale=Vector(1,1,1)
+local EMPTY = {}
 
 -- Render with a private clone of the chosen material, not the shared Material()
 -- instance: a global $color mutation on a stock material (e.g. hunter/myplastic)
@@ -356,8 +357,9 @@ function SafeSpace:Init(ent)
                 mat:Rotate(rotate)
                 mat:Scale(scale)
                 -- fixes it going black sometimes
+                local lights = self:GetLighting()
                 render.ResetModelLighting(0,0,0)
-                render.SetLocalModelLights(self:GetLighting())
+                render.SetLocalModelLights(lights)
                 if ghost then
                     render.SetMaterial(wireframe)
                 else
@@ -367,6 +369,10 @@ function SafeSpace:Init(ent)
                 cam.PushModelMatrix(mat)
                     self.mesh:Draw()
                 cam.PopModelMatrix()
+                -- Hand back the slots we claimed, or they stay lit on every model drawn after
+                -- us. Needs a disabled descriptor each - a no-arg call does not free them.
+                for i = 1, #lights do lights[i] = EMPTY end
+                render.SetLocalModelLights(lights)
                 
                 --[[
                 -- draws 'Drawing' text in top left if drawing
