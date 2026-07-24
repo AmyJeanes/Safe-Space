@@ -297,8 +297,8 @@ function SafeSpace:GetIsolatedMaterial(name)
     return iso
 end
 
--- ent is any: runs on both the exterior and interior SENT, which share these runtime fields but declare no common class.
----@param ent any
+-- Runs on both SENTs, which share these runtime fields but declare no common class.
+---@param ent gmod_safespace|gmod_safespace_interior
 function SafeSpace:Init(ent)
     if CLIENT then
         local vertices={}
@@ -339,6 +339,7 @@ function SafeSpace:Init(ent)
             end)
         end
         
+        ---@param self gmod_safespace|gmod_safespace_interior
         ---@param ghost boolean?
         ent.CustomDrawModel = function(self,ghost)
             if self.mesh then

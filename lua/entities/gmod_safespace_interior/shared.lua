@@ -32,6 +32,9 @@ end
 ---@param name string
 function ENT:CallHook(name,...)
     local a,b,c,d,e,f
+    -- glua_ls 1.1.1: a base method defined with `:` has no declared self, so the analyzer
+    -- infers its type from what we pass and flags its own guess. Declaring ours doesn't help.
+    ---@diagnostic disable-next-line: infer-unknown
     a,b,c,d,e,f=self.BaseClass.CallHook(self,name,...)
     if a~=nil then
         return a,b,c,d,e,f
