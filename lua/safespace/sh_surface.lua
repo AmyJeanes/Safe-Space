@@ -29,8 +29,7 @@ function SafeSpace:AddCustomSurface(displayname, surfaceid, category, icon, cate
     end
     local cat = custom_surfacetypes[category]
 
-    -- glua_ls 1.1.1: the empty {} seeded above loses the declared cat type and is re-inferred
-    -- from the writes below, so the index-signature value leaks into this named-field read.
+    -- glua_ls upstream: empty literal loses its declared type -- https://github.com/Pollux12/gmod-glua-ls/issues/50
     ---@diagnostic disable-next-line: assign-type-mismatch
     cat.icon = categoryicon or cat.icon or ""
 
