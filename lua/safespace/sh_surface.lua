@@ -29,8 +29,8 @@ function SafeSpace:AddCustomSurface(displayname, surfaceid, category, icon, cate
     end
     local cat = custom_surfacetypes[category]
 
-    -- glua_ls 1.1.1: the [string] index signature's value type leaks into this named field
-    -- read; icon only ever holds a string.
+    -- glua_ls 1.1.1: the empty {} seeded above loses the declared cat type and is re-inferred
+    -- from the writes below, so the index-signature value leaks into this named-field read.
     ---@diagnostic disable-next-line: assign-type-mismatch
     cat.icon = categoryicon or cat.icon or ""
 
