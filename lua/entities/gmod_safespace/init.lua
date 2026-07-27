@@ -13,5 +13,7 @@ function ENT:Initialize()
     self.Portal=self:GetPortalDimensions()
     self.material = SafeSpace:GetTextureExterior(self:GetCreator())
     self.surfacetype = SafeSpace:GetSurfaceProperty(self:GetCreator())
+    -- glua_ls upstream: undeclared base-method self -- https://github.com/Pollux12/gmod-glua-ls/issues/51
+    ---@diagnostic disable-next-line: infer-unknown
     self.BaseClass.Initialize(self)
 end

@@ -6,8 +6,10 @@
         "library": [
             "./.tools/glua-api",
             "./.luatypes",
-            "../Doors",
-            "../world-portals",
+            "../Doors/lua",
+            "../Doors/.luatypes",
+            "../world-portals/lua",
+            "../world-portals/.luatypes",
             "../wire"
         ],
         "ignoreGlobs": [

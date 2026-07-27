@@ -102,6 +102,7 @@ _Shared conventions for my GMod addons - generated from [`gmod-addon-tools/docs/
 - **Comments: concise, the _why_ not the _what_.** A couple of lines at most; reserve length for genuinely non-obvious rationale and bias toward cutting - match the surrounding density, don't pad to essay length. Don't restate the code, don't explain it by what it replaced, and keep the _why_ self-contained (no pointers to external docs or fragile cross-file references). Keep comments ASCII: `->` not an arrow, a single spaced hyphen for a dash (never a double `--`, which reads as a second comment marker, nor an em-dash).
 - **Drop the loop variable you don't use** rather than naming it: `for _, v in pairs(t)`, `for k in pairs(t)`, `for _ = 1, n do`. The `unused` lint is on - keep the noise floor at zero.
 - **Every `---@diagnostic disable` needs a paired reason** on the same or preceding line naming _why_ the rule is suppressed. The default is to fix the issue, not suppress it.
+- **If that reason is an analyzer or annotations defect rather than our code, start it `glua_ls <version>:`** - and do the same for a `---@cast` / `---@type` / `--[[@as]]` that only exists to work around one. `grep -rn "glua_ls <version>"` is then the complete list to re-test on a toolchain bump, and anything unmarked is a genuine local decision. Without it there is no way to tell the two apart, and a workaround outlives the bug it was written for.
 
 ## First-time setup (before touching `.lua` files)
 
@@ -114,6 +115,18 @@ pwsh -File scripts/install-tools.ps1
 
 It is idempotent - re-running is a no-op when the pinned versions are already present, so it is also the recovery path when diagnostics look wrong. After a fresh install, run `/reload-plugins` so Claude Code re-launches the LSP against the new binary.
 
+### `.luarc.json` library entries
+
+Reference a sibling's subdirectories - `../Doors/lua` **and** `../Doors/.luatypes` - never `../Doors` itself. Each addon provisions its own `.tools/glua-api`, so a root entry loads the annotations twice, which breaks `@return_cast` narrowing and misreports types at sites with no visible link to libraries ([gmod-glua-ls#48](https://github.com/Pollux12/gmod-glua-ls/issues/48)). Omitting a sibling's `.luatypes` silently drops its type overrides. `Initialize-GmodTools` fails on both.
+
+### `.luatypes` files must abort if executed
+
+They declare real globals and functions with empty bodies (`CPPI = {}`, `function debug.getinfo(...) end`), so executing one replaces working code with stubs. Living outside `lua/` is what keeps them unreachable - the game mounts, and `gmad` packs, from a fixed folder whitelist - so leave them there. Each also carries a guard as its first executable line, which `Initialize-GmodTools` enforces and the analyzer ignores:
+
+```lua
+error("cppi.lua contains type annotations only and must never be executed")
+```
+
 ## Claude Code LSP integration (`glua-lsp` plugin)
 
 Diagnostics, hover, and jump-to-definition come from the [`glua-lsp` plugin](https://github.com/AmyJeanes/gmod-claude-plugins) (marketplace `AmyJeanes/gmod-claude-plugins`), which wraps the [`glua_ls`](https://github.com/Pollux12/gmod-glua-ls) server - the same EmmyLua-Analyzer-Rust engine as `glua_check`, running long-lived. Diagnostics arrive automatically after every edit; no hook involvement. `.claude/settings.json` declares the marketplace so contributors get prompted to install on first open, and the plugin auto-resolves `glua_ls` from this project's `.tools/bin/` at launch (no global install, no PATH plumbing). The `glua-lsp:install-glua-ls` skill covers the same recovery flow if symptoms appear later. Treat reported diagnostics as actionable only if your edit caused them - pre-existing noise on unrelated lines is not in scope for the current change.
@@ -122,13 +135,21 @@ Diagnostics, hover, and jump-to-definition come from the [`glua-lsp` plugin](htt
 
 `glua_ls` only analyzes files as they are opened or edited. To audit the whole repo at once, run `pwsh -File scripts/glua-check.ps1` - it provisions tooling on demand (no-op when present) and runs `glua_check --warnings-as-errors` against the workspace root. It takes no path filter, so it always scans everything; CI runs the same script. Useful after a fix ripples across the tree, or when picking the project up to surface latent issues the LSP hasn't opened yet.
 
-**Local (Windows) vs CI (Linux) can diverge - CI is authoritative.** The same tooling and files can flag differently on Linux and no `.luarc.json` change closes that platform gap, so a green local `glua-check` isn't conclusive - watch CI's Linux `GLua Check` job after pushing typing changes. Most often the culprit is a strict `---@class`/`---@type` on a *partial or reused literal* (passes Windows, fails Linux); use `table`/`table[]?` or a `--[[@as Class]]` cast instead of annotating the literal.
+**Local and CI can disagree, and CI is authoritative** - but `glua_check` itself is platform-consistent (verified against the Linux binary), so suspect a difference in *what is being analyzed* before suspecting the analyzer: a duplicate annotations copy on the library masks undeclared engine classnames locally, for instance. Declare those in `.luatypes` as `---@class <name> : Entity`. What does diverge is the generated hook catalogue, which resolves types through `glua_doc_cli` rather than `glua_check` - hence CI owning that file, and never regenerating it locally. Avoid a strict `---@class`/`---@type` on a *partial or reused literal*; use `table`/`table[]?` or a `--[[@as Class]]` cast instead.
 
 ## Typing enforcement (`scripts/typing-check.ps1`)
 
 `glua_check` catches _wrong_ types but not _missing_ ones - an untyped param is a silent `any` it never flags. `Test-GmodTyping` (CI: `typing-check.yml`) closes that gap, failing the build on any of: an untyped param, annotation rot (a `---@param` for a param that no longer exists), a modeled function whose resolved return type contains `unknown`, a hook fire-site argument that resolves to `unknown`, or a `:CallHook`-style hook whose receiver resolves to `unknown` (so its "Fired on" column would render _Unknown_ - usually fixed with a `---@param self <class>` on the enclosing function). Satisfy it at the **source** - prefer a `---@param` / `---@return` / `---@class` annotation over a per-callsite `---@cast`, since annotations propagate to every caller. The only accepted escapes are explicit and greppable: `---@param x any` (a reviewed, genuine `any`), an `_` discard for a deliberately-unused arg, and a file-level `---@vendored` marker on third-party code.
 
 Where an addon fires its own hooks, callback payload params are typed by a generated `---@overload` catalogue (`scripts/generate-hook-types.ps1`, CI: `generate-hook-types.yml`) - do not hand-edit it; retype a payload at its `CallHook` / `hook.Run` site instead. Custom global-hook overloads are spliced into the provisioned `hook.lua` by `Initialize-GmodTools`, so after pulling a change to a generated fragment mid-session, re-run `scripts/install-tools.ps1` (it re-syncs) then `/reload-plugins` to refresh live types.
+
+## Before reporting a `glua_ls` bug
+
+The two gates disagree by design: `Test-GmodTyping` only asks whether a param is typed at all, which an `---@overload` match satisfies; `infer-unknown` additionally asks whether it was _declared_, which an overload match is not. So a hook callback can pass typing-check and still trip `infer-unknown` on values derived from its params - an explicit `---@param` above the `hook.Add` clears it. This hits stock GMod hooks too, not just generated catalogues.
+
+A committed `---@diagnostic disable` marks a genuine analyzer bug - it fired, and was suppressed. A `---@cast` / `---@type` / `--[[@as]]` frequently does not; it is often a redundant defensive leftover. Remove it in the real workspace and re-check before concluding anything. Suppressions tracking an upstream report carry a `glua_ls upstream:` comment with the issue URL, so grep that to find what to retire when one closes.
+
+Already investigated and **not** bugs, so do not re-derive them: `pcall` never narrows on `ok` (a limitation every Lua type system shares); `table.Copy` is genuinely generic, and its casts suppress `need-check-nil` because the return is honestly `T?`; `string.gmatch`'s bare `---@return function` makes a local `---@type fun(): string` a real tightening rather than a workaround; the undocumented Derma / `DModelPanel` getters are correctly omitted from the stubs; and a runtime-conditional `ENT.Base` (Wire mounted or not) cannot be resolved statically - an explicit `---@cast` does not clear it either, so the suppression stays.
 
 ## Bumping the shared tooling
 

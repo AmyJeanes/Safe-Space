@@ -187,6 +187,7 @@ function SafeSpace:OpenPresets()
     presetlist:AddColumn( "Preset" )
     local initdata=file.Read("safespace_presets.txt","DATA")
     if initdata then
+        ---@type table?
         local data=Doors.von.deserialize(initdata)
         if data then
             for k,v in pairs(data) do

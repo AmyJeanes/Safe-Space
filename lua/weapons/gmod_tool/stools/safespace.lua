@@ -67,10 +67,10 @@ else
     
     hook.Add("PostDrawTranslucentRenderables","safespace-ghost",function()
         if not SafeSpace.showghost then
-            SafeSpace.showghost = GetConVar("safespace_showghost")
+            SafeSpace.showghost = assert(GetConVar("safespace_showghost"))
         end
         if not SafeSpace.showghostint then
-            SafeSpace.showghostint = GetConVar("safespace_showghostint")
+            SafeSpace.showghostint = assert(GetConVar("safespace_showghostint"))
         end
         local ext = SafeSpace.GhostExterior
         local int = SafeSpace.GhostInterior

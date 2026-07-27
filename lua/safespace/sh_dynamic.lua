@@ -261,6 +261,7 @@ end
 
 local wireframe=Material("models/wireframe")
 local scale=Vector(1,1,1)
+local EMPTY = {}
 
 -- Render with a private clone of the chosen material, not the shared Material()
 -- instance: a global $color mutation on a stock material (e.g. hunter/myplastic)
@@ -296,8 +297,8 @@ function SafeSpace:GetIsolatedMaterial(name)
     return iso
 end
 
--- ent is any: runs on both the exterior and interior SENT, which share these runtime fields but declare no common class.
----@param ent any
+-- Runs on both SENTs, which share these runtime fields but declare no common class.
+---@param ent gmod_safespace|gmod_safespace_interior
 function SafeSpace:Init(ent)
     if CLIENT then
         local vertices={}
@@ -338,6 +339,7 @@ function SafeSpace:Init(ent)
             end)
         end
         
+        ---@param self gmod_safespace|gmod_safespace_interior
         ---@param ghost boolean?
         ent.CustomDrawModel = function(self,ghost)
             if self.mesh then
@@ -356,8 +358,9 @@ function SafeSpace:Init(ent)
                 mat:Rotate(rotate)
                 mat:Scale(scale)
                 -- fixes it going black sometimes
+                local lights = self:GetLighting()
                 render.ResetModelLighting(0,0,0)
-                render.SetLocalModelLights(self:GetLighting())
+                render.SetLocalModelLights(lights)
                 if ghost then
                     render.SetMaterial(wireframe)
                 else
@@ -367,6 +370,10 @@ function SafeSpace:Init(ent)
                 cam.PushModelMatrix(mat)
                     self.mesh:Draw()
                 cam.PopModelMatrix()
+                -- Hand back the slots we claimed, or they stay lit on every model drawn after
+                -- us. Needs a disabled descriptor each - a no-arg call does not free them.
+                for i = 1, #lights do lights[i] = EMPTY end
+                render.SetLocalModelLights(lights)
                 
                 --[[
                 -- draws 'Drawing' text in top left if drawing

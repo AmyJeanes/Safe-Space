@@ -1,8 +1,8 @@
 -- Tool menu
 
----@param panel Panel
+---@param panel ControlPanel
 function SafeSpace:CreateToolMenu(panel)
-    panel:AddControl( "Header", { Description = "#tool.safespace.desc" } )
+    panel:Help( "#tool.safespace.desc" )
     
     local showghost=vgui.Create("DCheckBoxLabel")
     showghost:SetConVar("safespace_showghost")
@@ -114,7 +114,7 @@ function SafeSpace:CreateToolMenu(panel)
         end
     end
     surface_properties.OnNodeSelected = function(self)
-        local con = GetConVar("safespace_global_surface")
+        local con = assert(GetConVar("safespace_global_surface"))
         local category = self:GetSelectedItem():GetParentNode():GetText()
         local s_surface = self:GetSelectedItem():GetText()
 
