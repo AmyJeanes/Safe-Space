@@ -180,7 +180,7 @@ function SafeSpace:OpenPresets()
     panel:SetSize(frame:GetWide()-4,frame:GetTall()-27)
     panel:SetPos(2,25)
 
-    local presetlist = vgui.Create("DListView",panel) --[[@as DListView]]
+    local presetlist = vgui.Create("DListView",panel)
     presetlist:SetWide(panel:GetWide())
     presetlist:SetTall(panel:GetTall()-45)
     presetlist:SetMultiSelect(false)
@@ -218,7 +218,7 @@ function SafeSpace:OpenPresets()
     load.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line = presetlist:GetLine(selected) --[[@as DListView_Line]]
+            local line = presetlist:GetLine(selected)
             if line then
                 local data=line.data
                 if data then
@@ -273,7 +273,7 @@ function SafeSpace:OpenPresets()
     remove.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line=presetlist:GetLine(selected) --[[@as DListView_Line]]
+            local line=presetlist:GetLine(selected)
             if line then
                 removed[line:GetValue(1)] = true
                 presetlist:RemoveLine(selected)
@@ -291,7 +291,7 @@ function SafeSpace:OpenPresets()
     rename.DoClick = function()
         local selected = presetlist:GetSelectedLine()
         if selected then
-            local line = presetlist:GetLine(selected) --[[@as DListView_Line]]
+            local line = presetlist:GetLine(selected)
             if line then
                 local old=line:GetValue(1)
                 Derma_StringRequest("Rename preset", "Please enter a new name for your preset", old, function(name)

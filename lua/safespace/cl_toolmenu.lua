@@ -26,7 +26,7 @@ function SafeSpace:CreateToolMenu(panel)
         label:SizeToContents()
         panel:AddItem(label)
         for _,option in ipairs(category) do
-            local slider=vgui.Create("DNumSlider") --[[@as DNumSlider]]
+            local slider=vgui.Create("DNumSlider")
             option.slider=slider
             slider.category = category.id
             slider.option = option.id

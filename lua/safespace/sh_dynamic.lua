@@ -207,7 +207,6 @@ end
 ---@param ent gmod_safespace
 function SafeSpace:GetExteriorLighting(ent)
     local dim=ent:GetDimensions()
-    ---@cast ent.interior gmod_safespace_interior
     local idim=ent.interior:GetDimensions()
     local portal=ent:GetPortalDimensions()
     return {

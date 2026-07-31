@@ -3,7 +3,7 @@
 local model = "models/props_junk/PopCan01a.mdl"
 function SafeSpace:CreateGhost()
     util.PrecacheModel(model)
-    local exterior = ents.CreateClientProp(model) --[[@as gmod_safespace]]
+    local exterior = ents.CreateClientProp(model)
     exterior:SetNoDraw(true)
     ---@param ent gmod_safespace
     exterior.GetDimensions = function(ent)
@@ -24,7 +24,7 @@ function SafeSpace:CreateGhost()
     end
     ---@param ent Entity
     exterior.UpdateModel = function(ent)
-        self:MakeDoor(ent --[[@as gmod_safespace]])
+        self:MakeDoor(ent)
     end
     exterior:UpdateModel()
     
@@ -54,7 +54,7 @@ function SafeSpace:CreateGhost()
     end
     ---@param ent Entity
     interior.UpdateModel = function(ent)
-        self:MakeInterior(ent --[[@as gmod_safespace_interior]])
+        self:MakeInterior(ent)
     end
     interior:UpdateModel()
     
