@@ -11,3 +11,8 @@ error("glua_overrides.lua contains type annotations only and must never be execu
 -- declare it as a field on DNumSlider.
 ---@class DNumSlider
 ---@field Label DLabel
+-- glua_ls upstream: the wiki page path leaks into the generated type, so the annotated
+-- `Structures/LocalLight[]` resolves to a bogus class `Structures` -- https://github.com/Pollux12/annotations-gmod-glua-ls/issues/16
+---@param lights? LocalLight[]
+function render.SetLocalModelLights(lights) end
+
