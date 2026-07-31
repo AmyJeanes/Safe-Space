@@ -4,8 +4,8 @@
     },
     "workspace": {
         "library": [
-            "./.tools/glua-api",
             "./.luatypes",
+            "./.tools/glua-api",
             "../Doors/lua",
             "../Doors/.luatypes",
             "../world-portals/lua",
