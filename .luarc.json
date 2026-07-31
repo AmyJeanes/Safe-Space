@@ -9,8 +9,7 @@
             "../Doors/lua",
             "../Doors/.luatypes",
             "../world-portals/lua",
-            "../world-portals/.luatypes",
-            "../wire"
+            "../world-portals/.luatypes"
         ],
         "ignoreGlobs": [
             ".tools/*.zip"
