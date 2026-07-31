@@ -315,7 +315,7 @@ function SafeSpace:Init(ent)
         table.insert(meshes,v[2])
     end
     ent:PhysicsInitMultiConvex(meshes)
-    ent:EnableCustomCollisions(true)
+    ent:EnableCustomCollisions()
     
     ent.phys = ent:GetPhysicsObject()
     if not IsValid(ent.phys) then
