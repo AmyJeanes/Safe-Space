@@ -22,3 +22,8 @@ end
 function ENT:GetLighting()
     return SafeSpace:GetExteriorLighting(self)
 end
+
+---@return doors_portal_side
+function ENT:GetDoorway()
+    return self:GetPortalDimensions()
+end
