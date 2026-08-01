@@ -1,7 +1,10 @@
 -- Safe Space
 
+-- interior is non-nil here, unlike the nilable base field: InteriorReady removes an
+-- exterior whose interior is invalid, so one without a live interior cannot exist.
 ---@class gmod_safespace : gmod_door_exterior
 ---@field BaseClass gmod_door_exterior
+---@field interior gmod_safespace_interior
 
 ENT.Category = "Dr. Matt"
 ENT.Base="gmod_door_exterior"
