@@ -274,7 +274,9 @@ function SafeSpace:GetIsolatedMaterial(name)
     if cached then return cached end
 
     local src = Material(name)
-    local data, textures = {}, {}
+    local data = {}
+    ---@type table<string, ITexture|string>
+    local textures = {}
     for k, v in pairs(src:GetKeyValues()) do
         if k ~= "$color" and k ~= "$color2" then
             local t = TypeID(v)
@@ -359,7 +361,8 @@ function SafeSpace:Init(ent)
                 -- fixes it going black sometimes
                 local lights = self:GetLighting()
                 render.ResetModelLighting(0,0,0)
-                render.SetLocalModelLights(lights)
+                -- glua_ls upstream: the SetLocalModelLights stub types its param as a bogus `Structures`; ours is `LocalLight[]` -- https://github.com/Pollux12/annotations-gmod-glua-ls/issues/16
+                render.SetLocalModelLights(lights --[[@as any]])
                 if ghost then
                     render.SetMaterial(wireframe)
                 else
@@ -372,7 +375,8 @@ function SafeSpace:Init(ent)
                 -- Hand back the slots we claimed, or they stay lit on every model drawn after
                 -- us. Needs a disabled descriptor each - a no-arg call does not free them.
                 for i = 1, #lights do lights[i] = EMPTY end
-                render.SetLocalModelLights(lights)
+                -- glua_ls upstream: the SetLocalModelLights stub types its param as a bogus `Structures`; ours is `LocalLight[]` -- https://github.com/Pollux12/annotations-gmod-glua-ls/issues/16
+                render.SetLocalModelLights(lights --[[@as any]])
                 
                 --[[
                 -- draws 'Drawing' text in top left if drawing

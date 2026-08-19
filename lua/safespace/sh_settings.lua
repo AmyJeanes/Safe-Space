@@ -227,7 +227,8 @@ function SafeSpace:OpenPresets()
                         if catdata then
                             for _,opt in ipairs(cat) do
                                 local o = SafeSpace:GetOption(cat.id,opt.id)
-                                local o2 = catdata[opt.id]
+                                -- glua_ls upstream: infer-unknown false-positive; the cast only asserts the already-correct type -- https://github.com/Pollux12/gmod-glua-ls/issues/84
+                                local o2 = catdata[opt.id] --[[@as number]]
                                 if o and o.convar and o.value and o2 and o.value ~= o2 then
                                     o.convar:SetInt(o2)
                                 end
