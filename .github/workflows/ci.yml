@@ -42,7 +42,7 @@ jobs:
         with:
           repository: AmyJeanes/gmod-addon-tools
           # renovate: datasource=github-tags depName=AmyJeanes/gmod-addon-tools
-          ref: v0.33.1
+          ref: v0.33.2
           path: gmod-addon-tools
 
       - name: Run glua_check
@@ -86,7 +86,7 @@ jobs:
         with:
           repository: AmyJeanes/gmod-addon-tools
           # renovate: datasource=github-tags depName=AmyJeanes/gmod-addon-tools
-          ref: v0.33.1
+          ref: v0.33.2
           path: gmod-addon-tools
 
       - name: Run typing check
