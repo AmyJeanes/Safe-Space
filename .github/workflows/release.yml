@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   publish:
-    uses: AmyJeanes/gmod-addon-tools/.github/workflows/publish-workshop.yml@ffd21ce5e7caef8fb1c9ac8f54921e2eb6a9b7b3 # v0.33.6
+    uses: AmyJeanes/gmod-addon-tools/.github/workflows/publish-workshop.yml@c53413cc025781ac72c8d4dc7f279332e1c4a08a # v0.33.7
     with:
       addon: "Safe Space"
       workshop_id: "210294043"
